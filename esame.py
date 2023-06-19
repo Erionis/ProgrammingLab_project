@@ -1,5 +1,3 @@
-
-
 class ExamException(Exception):
     pass
 
@@ -31,10 +29,11 @@ class CSVTimeSeriesFile:
         for line_num, line in enumerate(lines[1:], start=2):  # Parto dalla seconda riga
             elements = line.strip().split(',') # Separo i valori della riga e rimuovo gli spazi
             
-            if len(elements) < 2 or len(elements) > 3:  # Ignoro le righe con meno di due valori o più di tre
+            if len(elements) < 2: # Ignoro le righe con meno di due valori 
                 continue
 
             date = elements[0] # Estraggo la data
+            
             # Controllo che la data sia nel formato corretto
             try:
                 year = int(date[:4])  # Estraggo l'anno
@@ -58,6 +57,7 @@ class CSVTimeSeriesFile:
             data_list.append([date, int(passengers)])
 
         return data_list
+
     
     
 def compute_avg_monthly_difference(time_series, first_year, last_year):
@@ -65,12 +65,24 @@ def compute_avg_monthly_difference(time_series, first_year, last_year):
     Funzione che calcola la media delle differenze tra i passeggeri di anno in anno per ogni mese.
     """
     # Controllo che first_year e last_year siano anni validi
+    try:
+        first_year = int(first_year)
+        last_year = int(last_year)
+    except ValueError:
+        raise ExamException('Errore, gli anni specificati devono essere numeri.')
+    
+    # Controllo che first_year e last_year siano numeri di quattro cifre
+    if first_year < 1000 or first_year > 9999 or last_year < 1000 or last_year > 9999:
+        raise ExamException('Errore, gli anni specificati devono essere numeri di quattro cifre.')
 
+    # Controllo che last_year sia maggiore di first_year
+    if last_year <= first_year:
+        raise ExamException('Errore, last_year deve essere maggiore di first_year.')
 
     monthly_differences = [0] * 12 # Creo una lista di 12 mesi inizializzati a 0
     yearly_data = {} # Creo un dizionario vuoto che conterrà i dati raggruppati per anno
 
-    # Raggruppo i dati per anno
+    # Costriusco il dizionario dei dati raggruppati per anno
     for data in time_series:
         date = data[0] # Estraggo la data
         year = int(date[:4]) # Estraggo l'anno
@@ -115,4 +127,10 @@ def compute_avg_monthly_difference(time_series, first_year, last_year):
 
     return avg_monthly_differences
 
+
+
+# time_series_file = CSVTimeSeriesFile(name='data.csv')
+# time_series = time_series_file.get_data()
+# differences = compute_avg_monthly_difference(time_series, 1949, 1951)
+# print(differences)
 
