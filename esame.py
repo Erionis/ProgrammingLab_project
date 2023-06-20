@@ -80,7 +80,7 @@ def compute_avg_monthly_difference(time_series, first_year, last_year):
         raise ExamException('Errore, last_year deve essere maggiore di first_year.')
 
     monthly_differences = [0] * 12 # Creo una lista di 12 mesi inizializzati a 0
-    yearly_data = {} # Creo un dizionario vuoto che conterrà i dati raggruppati per anno
+    dictionary = {} # Creo un dizionario vuoto che conterrà i dati raggruppati per anno
 
     # Costriusco il dizionario dei dati raggruppati per anno
     for data in time_series:
@@ -91,14 +91,14 @@ def compute_avg_monthly_difference(time_series, first_year, last_year):
         # Controllo che l'anno sia compreso tra first_year e last_year
         if first_year <= year <= last_year:
             # Se l'anno non è presente nel dizionario, lo aggiungo
-            if year not in yearly_data:
+            if year not in dictionary:
                 # Inizializzo la lista dei mesi per quell'anno a None 
-                yearly_data[year] = [None] * 12
-            # Inserisco il dato nella lista del mese corrispondente    
-            yearly_data[year][month-1] = data[1]
+                dictionary[year] = [None] * 12
+            # Inserisco il dato dei passeggeri nella lista del mese corrispondente    
+            dictionary[year][month-1] = data[1]
             
     # Controllo che i dati siano presenti per tutti gli anni richiesti
-    if first_year not in yearly_data or last_year not in yearly_data:
+    if first_year not in dictionary or last_year not in dictionary:
         raise ExamException(f'Errore, gli anni specificati non sono presenti nel file CSV.')
     
     # Calcolo la differenza tra i passeggeri di anno in anno
@@ -106,20 +106,20 @@ def compute_avg_monthly_difference(time_series, first_year, last_year):
         
         for month in range(12):
             # Controllo che i dati del mese corrente siano presenti per entrabi gli anni
-            if yearly_data[year][month] is not None and yearly_data[year+1][month] is not None:
+            if dictionary[year][month] is not None and dictionary[year+1][month] is not None:
                 # Calcolo la differenza tra i volori dei passeggeri 
-                diff = yearly_data[year+1][month] - yearly_data[year][month]
+                difference = dictionary[year+1][month] - dictionary[year][month]
                 # Aggiungo la differenza al totale del mese
-                monthly_differences[month] += diff
+                monthly_differences[month] += difference
 
     # calcolo la media mensile
     avg_monthly_differences = []
     
     for month in range(12):
         # Calcolo il numero di anni per cui i dati sono presenti per il mese corrente
-        count = sum([1 for year in range(first_year, last_year) if yearly_data[year][month] is not None and yearly_data[year+1][month] is not None])
+        count = sum([1 for year in range(first_year, last_year) if dictionary[year][month] is not None and dictionary[year+1][month] is not None])
         # Se il conteggio è 0, la media è 0
-        if count == 0:
+        if count < 1:
             avg_monthly_differences.append(0)
         else:
             # Altrimenti calcolo la media considerando il numero di anni per cui i dati sono presenti
@@ -132,5 +132,6 @@ def compute_avg_monthly_difference(time_series, first_year, last_year):
 # time_series_file = CSVTimeSeriesFile(name='data.csv')
 # time_series = time_series_file.get_data()
 # differences = compute_avg_monthly_difference(time_series, 1949, 1951)
+# print(time_series)
 # print(differences)
 
